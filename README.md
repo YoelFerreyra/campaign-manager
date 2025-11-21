@@ -1,4 +1,4 @@
-# Campaign manager
+# Campaign manager test
 This project implements a full-stack Campaign Manager using a fully serverless architecture, deployed and managed with AWS SAM and Infrastructure as Code (IaC).
 
 ## Project Structure
