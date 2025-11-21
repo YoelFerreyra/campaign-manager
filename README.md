@@ -1,4 +1,4 @@
-# Campaigns proyect
+# Campaign manager
 
 ```bash
 campaign-manager-pro/
