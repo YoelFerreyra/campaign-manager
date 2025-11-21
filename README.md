@@ -28,3 +28,4 @@ campaign-manager-pro/
 ```bash
 React SPA → CloudFront/S3 → API Gateway → Lambda (Python) → DynamoDB/RDS
 ```
+
