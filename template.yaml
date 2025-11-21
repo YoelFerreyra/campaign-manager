@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Campaign Manager - Backend (Python Lambdas + DynamoDB)
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 10
+    MemorySize: 256
+    Environment:
+      Variables:
+        CAMPAIGNS_TABLE: !Ref CampaignsTable
+
+Resources:
+
+  # ---------- API GATEWAY (with CORS) ----------
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  # ---------- DYNAMODB ----------
+  CampaignsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Campaigns
+      AttributeDefinitions:
+        - AttributeName: campaignId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: campaignId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  # ---------- LAMBDA ----------
+  CampaignsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: campaigns-handler
+      Handler: campaigns_handler.lambda_handler
+      CodeUri: ./backend/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CampaignsTable
+      Events:
+        CampaignsApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /campaigns
+            Method: ANY
+        CampaignsApiWithId:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /campaigns/{id}
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"

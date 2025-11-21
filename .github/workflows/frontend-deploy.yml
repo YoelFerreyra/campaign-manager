@@ -1,0 +1,52 @@
+name: Deploy Frontend
+
+on:
+  workflow_run:
+    workflows: ["Deploy Backend"]
+    types:
+      - completed
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download repo
+        uses: actions/checkout@v3
+
+      - name: Download backend API URL
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-api-url
+
+      - name: Read API URL
+        id: read-api
+        run: |
+          API_URL=$(cat api_url.txt)
+          echo "API URL = $API_URL"
+          echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build frontend with backend API URL
+        run: |
+          cd frontend
+          VITE_API_URL=${{ steps.read-api.outputs.api_url }} npm run build
+
+      - name: Deploy to S3
+        uses: aws-actions/s3-sync@v2
+        with:
+          source: "frontend/dist"
+          bucket: ${{ secrets.S3_BUCKET_NAME }}
+          delete: true
+          region: us-east-1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
