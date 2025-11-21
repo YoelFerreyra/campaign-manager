@@ -9,7 +9,7 @@ Globals:
     MemorySize: 256
     Environment:
       Variables:
-        CAMPAIGNS_TABLE: !Ref CampaignsTable
+        CAMPAIGNS_TABLE: "Campaigns"
 
 Resources:
 
@@ -23,19 +23,6 @@ Resources:
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
 
-  # ---------- DYNAMODB ----------
-  CampaignsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Campaigns
-      AttributeDefinitions:
-        - AttributeName: campaignId
-          AttributeType: S
-      KeySchema:
-        - AttributeName: campaignId
-          KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
-
   # ---------- LAMBDA ----------
   CampaignsFunction:
     Type: AWS::Serverless::Function
@@ -45,7 +32,7 @@ Resources:
       CodeUri: ./backend/
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref CampaignsTable
+            TableName: "Campaigns"
       Events:
         CampaignsApi:
           Type: Api
