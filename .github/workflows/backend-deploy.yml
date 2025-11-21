@@ -50,9 +50,3 @@ jobs:
 
           echo "$API_URL" > api_url.txt
           echo "api_url=$API_URL" >> $GITHUB_OUTPUT
-
-      - name: Upload API URL artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-api-url
-          path: api_url.txt

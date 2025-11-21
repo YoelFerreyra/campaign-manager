@@ -1,10 +1,9 @@
 name: Deploy Frontend
 
 on:
-  workflow_run:
-    workflows: ["Deploy Backend"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
   deploy-frontend:
@@ -12,18 +11,6 @@ jobs:
     steps:
       - name: Download repo
         uses: actions/checkout@v3
-
-      - name: Download backend API URL
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-api-url
-
-      - name: Read API URL
-        id: read-api
-        run: |
-          API_URL=$(cat api_url.txt)
-          echo "API URL = $API_URL"
-          echo "api_url=$API_URL" >> $GITHUB_OUTPUT
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -38,7 +25,7 @@ jobs:
       - name: Build frontend with backend API URL
         run: |
           cd frontend
-          REACT_APP_API_URL=${{ steps.read-api.outputs.api_url }} npm run build
+          REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} npm run build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -50,4 +37,3 @@ jobs:
       - name: Deploy to S3
         run: |
           aws s3 sync frontend/dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
-
