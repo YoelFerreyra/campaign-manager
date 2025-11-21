@@ -20,7 +20,7 @@ jobs:
       - name: Install frontend deps
         run: |
           cd frontend
-          npm ci
+          npm ci --legacy-peer-deps
 
       - name: Build frontend with backend API URL
         run: |
