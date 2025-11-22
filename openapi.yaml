@@ -1,0 +1,121 @@
+openapi: 3.0.3
+info:
+  title: Campaign Manager API
+  version: 1.0.0
+
+paths:
+  /campaigns:
+    post:
+      summary: Create a new campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignInput"
+      responses:
+        "201":
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+        "400":
+          description: Invalid body
+
+    get:
+      summary: List all campaigns
+      responses:
+        "200":
+          description: Array of campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Campaign"
+
+  /campaigns/{id}:
+    get:
+      summary: Get one campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+        "404":
+          description: Not found
+
+    put:
+      summary: Update a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignInput"
+      responses:
+        "200":
+          description: Updated campaign
+
+    delete:
+      summary: Delete a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted successfully
+
+components:
+  schemas:
+    CampaignInput:
+      type: object
+      required:
+        - name
+        - client
+        - platform
+        - budget
+        - units
+      properties:
+        name:
+          type: string
+        client:
+          type: string
+        platform:
+          type: string
+        budget:
+          type: number
+        units:
+          type: number
+
+    Campaign:
+      allOf:
+        - $ref: "#/components/schemas/CampaignInput"
+        - type: object
+          properties:
+            campaignId:
+              type: string
+            margin:
+              type: number
+            createdAt:
+              type: string
+            updatedAt:
+              type: string
