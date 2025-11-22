@@ -13,11 +13,13 @@
   - [License](#license)
 
 ## Project Overview
+
 This project implements a full-stack Campaign Manager using a fully serverless architecture, deployed and managed with AWS SAM and Infrastructure as Code (IaC).
 
 ## Project Structure
+
 ```bash
-campaign-manager-pro/
+campaign-manager/
 ├─ backend/
 │  ├─ campaigns_handler.py
 │  ├─ requirements.txt
@@ -38,7 +40,7 @@ campaign-manager-pro/
 └─ README.md
 ```
 
-# [Live Version Here](http://http://campaign-frontend-us-media.s3-website-us-east-1.amazonaws.com/)
+# [Live Version Here](http://campaign-frontend-us-media.s3-website-us-east-1.amazonaws.com/)
 
 ## Architecture
 
@@ -56,10 +58,11 @@ React SPA → CloudFront/S3 → API Gateway → Lambda (Python) → DynamoDB/RDS
 - CI/CD-friendly for GitHub Actions deployments
 
 ## Running the Project
+
 ### Prerequisites
 
 - AWS account with IAM user and access keys
-- Node.js >= 20
+- Node.js >= 20.19.5
 - npm or yarn
 - Python 3.11
 - AWS CLI and SAM CLI installed

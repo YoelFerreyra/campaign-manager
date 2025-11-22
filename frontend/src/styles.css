@@ -1,6 +1,0 @@
-body { font-family: Arial, sans-serif; padding: 20px; }
-.container { max-width: 900px; margin: 0 auto; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-.form input { display:block; margin:8px 0; padding:8px; width: 100%; max-width: 400px;}
-button { margin-right: 6px; padding:6px 10px; }
