@@ -13,16 +13,12 @@ Globals:
 
 Resources:
 
-  # ---------- API GATEWAY (with CORS) ----------
+  # ---------- API GATEWAY ----------
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
       DefinitionUri: openapi.yaml
-      Cors:
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"
 
   # ---------- DYNAMODB ----------
   CampaignsTable:
