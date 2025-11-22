@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { client } from "../api";
-import * as React from "react";
-import type { Campaign } from "../../types/campaign";
+import type { Campaign } from "../types/campaign";
 
 interface CampaignFormProps {
   editing?: Campaign | null;
   onDone: () => void;
 }
+
 export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
   const initial = { name: "", client: "", platform: "", budget: "", units: "" };
   const [form, setForm] = useState(initial);
@@ -18,18 +18,21 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
         client: editing.client || "",
         platform: editing.platform || "",
         budget: editing.budget !== undefined ? String(editing.budget) : "",
-        units: editing.budget !== undefined ? String(editing.budget) : ""
+        units: editing.units !== undefined ? String(editing.units) : "",
       });
     } else {
       setForm(initial);
     }
   }, [editing]);
 
-  const margin = form.budget && form.units ? (Number(form.budget) / Number(form.units || 1)).toFixed(2) : "0.00";
+  const margin =
+    form.budget && form.units
+      ? (Number(form.budget) / Number(form.units || 1)).toFixed(2)
+      : "0.00";
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+    setForm((f) => ({ ...f, [name]: value }));
   }
 
   async function submit(e: React.FormEvent) {
@@ -54,16 +57,64 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
   }
 
   return (
-    <form onSubmit={submit} className="form">
-      <h2>{editing ? "Edit Campaign" : "Create Campaign"}</h2>
-      <input name="name" placeholder="Name" value={form.name} onChange={onChange} />
-      <input name="client" placeholder="Client" value={form.client} onChange={onChange} />
-      <input name="platform" placeholder="Platform" value={form.platform} onChange={onChange} />
-      <input name="budget" placeholder="Budget" value={form.budget} onChange={onChange} type="number" step="any" />
-      <input name="units" placeholder="Units" value={form.units} onChange={onChange} type="number" step="any" />
+    <form onSubmit={submit} className="space-y-3 text-black">
+      <input
+        name="name"
+        placeholder="Name"
+        value={form.name}
+        onChange={onChange}
+        className="border px-2 py-1 w-full rounded"
+      />
+      <input
+        name="client"
+        placeholder="Client"
+        value={form.client}
+        onChange={onChange}
+        className="border px-2 py-1 w-full rounded"
+      />
+      <input
+        name="platform"
+        placeholder="Platform"
+        value={form.platform}
+        onChange={onChange}
+        className="border px-2 py-1 w-full rounded"
+      />
+      <input
+        name="budget"
+        placeholder="Budget"
+        value={form.budget}
+        onChange={onChange}
+        type="number"
+        step="any"
+        className="border px-2 py-1 w-full rounded"
+      />
+      <input
+        name="units"
+        placeholder="Units"
+        value={form.units}
+        onChange={onChange}
+        type="number"
+        step="any"
+        className="border px-2 py-1 w-full rounded"
+      />
       <div>Margin (live): {margin}</div>
-      <button type="submit">{editing ? "Update" : "Create"}</button>
-      {editing && <button type="button" onClick={() => onDone()}>Cancel</button>}
+      <div className="flex space-x-2">
+        <button
+          type="submit"
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          {editing ? "Update" : "Create"}
+        </button>
+        {editing && (
+          <button
+            type="button"
+            onClick={onDone}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }

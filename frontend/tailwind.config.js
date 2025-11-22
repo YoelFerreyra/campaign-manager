@@ -1,0 +1,22 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+    content: [
+      "./index.html",
+      "./src/**/*.{js,ts,jsx,tsx}"
+    ],
+    theme: {
+      extend: {
+        colors: {
+          'orange-vibrant': '#FF5722',
+          'gray-dark': '#1E1E1E',
+          'gray-light': '#2C2C2C',
+          'green-protein': '#4CAF50',
+          'blue-carb': '#2196F3',
+          'orange-fat': '#FF9800',
+          'white-main': '#FFFFFF',
+        }
+      },
+    },
+    plugins: [],
+  }
+  

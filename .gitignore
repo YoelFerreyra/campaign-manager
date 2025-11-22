@@ -3,4 +3,5 @@
 .aws-sam/
 node_modules/
 build/
+dist/
 .DS_Store
