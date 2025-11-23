@@ -1,12 +1,6 @@
 @import "tailwindcss";
 @import "@radix-ui/themes/styles.css";
 
-@layer components {
-  .DocSearch-Hit--Result {
-    background-color: --alpha(var(--color-gray-950) / 10%);
-  }
-}
-
 :root {
   --orange-vibrant: #FF5722;
   --gray-dark: #1E1E1E;

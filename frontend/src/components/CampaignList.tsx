@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { client } from "../api";
 import type { Campaign } from "../types/campaign";
-import CampaignDialog from "./CampaignModal";
+import CampaignModal from "./CampaignModal";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Button, Flex, Heading, Section, Table } from "@radix-ui/themes";
 
 export default function CampaignList() {
   const [items, setItems] = useState<Campaign[]>([]);
@@ -40,63 +41,59 @@ export default function CampaignList() {
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Campaigns</h2>
+    <Section>
+      <Flex justify="between" align="center" mb="4">
+        <Heading as="h2">Campaigns List</Heading>
 
-      <button className="bg-green-500 text-white px-4 py-2 rounded mb-4 flex items-center gap-2" onClick={()=> setCreating(!creating)}>
-        <Plus size={18} />
-        Create Campaign
-      </button>
+        <Button onClick={() => setCreating(!creating)}>
+          <Plus size={18} />
+          Create Campaign
+        </Button>
+      </Flex>
 
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <table className="w-full table-auto border border-gray-200">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-2 py-1">Name</th>
-              <th className="border px-2 py-1">Client</th>
-              <th className="border px-2 py-1">Platform</th>
-              <th className="border px-2 py-1">Budget</th>
-              <th className="border px-2 py-1">Units</th>
-              <th className="border px-2 py-1">Margin</th>
-              <th className="border px-2 py-1">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table.Root variant="surface">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Client</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Platform</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Budget</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Units</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Margin</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Actions</Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
             {items.map((it) => (
-              <tr key={it.campaignId}>
-                <td className="border px-2 py-1">{it.name}</td>
-                <td className="border px-2 py-1">{it.client}</td>
-                <td className="border px-2 py-1">{it.platform}</td>
-                <td className="border px-2 py-1">{it.budget}</td>
-                <td className="border px-2 py-1">{it.units}</td>
-                <td className="border px-2 py-1">{it.margin}</td>
-                <td className="border px-2 py-1 space-x-2">
-                  <button
-                    className="bg-blue-500 text-white px-2 py-1 rounded flex items-center gap-2"
-                    onClick={() => setEditing(it)}
-                  >
-                    <Pencil size={16} />
-                    Edit
-                  </button>
+              <Table.Row key={it.campaignId}>
+                <Table.Cell>{it.name}</Table.Cell>
+                <Table.Cell>{it.client}</Table.Cell>
+                <Table.Cell>{it.platform}</Table.Cell>
+                <Table.Cell>{it.budget}</Table.Cell>
+                <Table.Cell>{it.units}</Table.Cell>
+                <Table.Cell>{it.margin}</Table.Cell>
+                <Table.Cell>
+                  <Flex gap="3">
+                    <Button onClick={() => setEditing(it)}>
+                      <Pencil size={16} />
+                    </Button>
 
-                  <button
-                    className="bg-red-500 text-white px-2 py-1 rounded flex items-center gap-2"
-                    onClick={() => remove(it.campaignId)}
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-                </td>
-              </tr>
+                    <Button onClick={() => remove(it.campaignId)}>
+                      <Trash2 size={16} />
+                    </Button>
+                  </Flex>
+                </Table.Cell>
+              </Table.Row>
             ))}
-          </tbody>
-        </table>
+          </Table.Body>
+        </Table.Root>
       )}
 
       {/* Create Dialog */}
-      <CampaignDialog
+      <CampaignModal
         open={creating}
         title="Create Campaign"
         onOpenChange={setCreating}
@@ -107,7 +104,7 @@ export default function CampaignList() {
       />
 
       {/* Edit Dialog */}
-      <CampaignDialog
+      <CampaignModal
         open={!!editing}
         title="Edit Campaign"
         editing={editing}
@@ -117,6 +114,6 @@ export default function CampaignList() {
           fetch();
         }}
       />
-    </div>
+    </Section>
   );
 }
