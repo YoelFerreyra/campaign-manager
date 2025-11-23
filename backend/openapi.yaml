@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: Campaign Manager API
+  version: 1.0.0
+
+paths:
+  /campaigns:
+    options:
+      summary: CORS support
+      responses:
+        "200":
+          description: Default CORS response
+    get:
+      summary: List campaigns
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    campaignId:
+                      type: string
+                    name:
+                      type: string
+                    client:
+                      type: string
+                    platform:
+                      type: string
+                    budget:
+                      type: number
+                    units:
+                      type: number
+                    margin:
+                      type: number
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+    post:
+      summary: Create a campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, client, platform, budget, units]
+              properties:
+                name:
+                  type: string
+                client:
+                  type: string
+                platform:
+                  type: string
+                budget:
+                  type: number
+                units:
+                  type: number
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  campaignId:
+                    type: string
+                  name:
+                    type: string
+                  client:
+                    type: string
+                  platform:
+                    type: string
+                  budget:
+                    type: number
+                  units:
+                    type: number
+                  margin:
+                    type: number
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+
+  /campaigns/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a campaign by ID
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  campaignId:
+                    type: string
+                  name:
+                    type: string
+                  client:
+                    type: string
+                  platform:
+                    type: string
+                  budget:
+                    type: number
+                  units:
+                    type: number
+                  margin:
+                    type: number
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+        "404":
+          description: Campaign not found
+    put:
+      summary: Update a campaign by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, client, platform, budget, units]
+              properties:
+                name:
+                  type: string
+                client:
+                  type: string
+                platform:
+                  type: string
+                budget:
+                  type: number
+                units:
+                  type: number
+      responses:
+        "200":
+          description: Updated campaign
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: Campaign not found
+    delete:
+      summary: Delete a campaign by ID
+      responses:
+        "204":
+          description: Deleted successfully
+        "404":
+          description: Campaign not found
