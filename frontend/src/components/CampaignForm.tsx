@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { client } from "../api";
 import type { Campaign } from "../types/campaign";
+import { Button, Flex, TextField } from "@radix-ui/themes";
+import { toast } from "sonner";
 
 interface CampaignFormProps {
   editing?: Campaign | null;
@@ -10,6 +12,23 @@ interface CampaignFormProps {
 export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
   const initial = { name: "", client: "", platform: "", budget: "", units: "" };
   const [form, setForm] = useState(initial);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  function validate() {
+    const newErrors: { [key: string]: string } = {};
+  
+    if (!form.name.trim()) newErrors.name = "Name is required";
+    if (!form.client.trim()) newErrors.client = "Client is required";
+    if (!form.platform.trim()) newErrors.platform = "Platform is required";
+  
+    if (!form.budget || Number(form.budget) < 0)
+      newErrors.budget = "Budget must be ≥ 0";
+  
+    if (!form.units || Number(form.units) <= 0)
+      newErrors.units = "Units must be > 0";
+  
+    return newErrors;
+  }
 
   useEffect(() => {
     if (editing) {
@@ -37,11 +56,11 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name || !form.client || !form.platform) {
-      return alert("Fill name, client and platform");
-    }
-    if (!form.budget || Number(form.budget) < 0) return alert("Budget must be >= 0");
-    if (!form.units || Number(form.units) <= 0) return alert("Units must be > 0");
+    const validation = validate();
+    setErrors(validation);
+  
+    if (Object.keys(validation).length > 0) return;
+
     try {
       if (editing && editing.campaignId) {
         await client.put(`/campaigns/${editing.campaignId}`, form);
@@ -50,71 +69,75 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
       }
       setForm(initial);
       onDone();
+      toast.success("Submission successful");
     } catch (err) {
       console.error(err);
-      alert("Save failed");
+      toast.error("Submission failed");
     }
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 text-black">
-      <input
-        name="name"
+    <form onSubmit={submit}>
+      <TextField.Root
         placeholder="Name"
+        name="name"
         value={form.name}
         onChange={onChange}
-        className="border px-2 py-1 w-full rounded"
+        className={errors.name ? "border border-red-500" : ""}
       />
-      <input
-        name="client"
+      {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+
+      <TextField.Root
         placeholder="Client"
+        name="client"
         value={form.client}
         onChange={onChange}
-        className="border px-2 py-1 w-full rounded"
+        className={errors.client ? "border border-red-500" : ""}
+        mt="2"
       />
-      <input
-        name="platform"
+      {errors.client && <p className="text-red-500 text-sm">{errors.client}</p>}
+
+      <TextField.Root
         placeholder="Platform"
+        name="platform"
         value={form.platform}
         onChange={onChange}
-        className="border px-2 py-1 w-full rounded"
+        className={errors.platform ? "border border-red-500" : ""}
+        mt="2"
       />
-      <input
-        name="budget"
+      {errors.platform && (
+        <p className="text-red-500 text-sm">{errors.platform}</p>
+      )}
+
+      <TextField.Root
         placeholder="Budget"
+        name="budget"
         value={form.budget}
         onChange={onChange}
         type="number"
-        step="any"
-        className="border px-2 py-1 w-full rounded"
+        className={errors.budget ? "border border-red-500" : ""}
+        mt="2"
       />
-      <input
-        name="units"
+      {errors.budget && (
+        <p className="text-red-500 text-sm">{errors.budget}</p>
+      )}
+
+      <TextField.Root
         placeholder="Units"
+        name="units"
         value={form.units}
         onChange={onChange}
         type="number"
-        step="any"
-        className="border px-2 py-1 w-full rounded"
+        className={errors.units ? "border border-red-500" : ""}
+        mt="2"
       />
-      <div>Margin (live): {margin}</div>
-      <div className="flex space-x-2">
-        <button
-          type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          {editing ? "Update" : "Create"}
-        </button>
-        {editing && (
-          <button
-            type="button"
-            onClick={onDone}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-        )}
-      </div>
+      {errors.units && <p className="text-red-500 text-sm">{errors.units}</p>}
+
+      <div style={{ marginTop: 10 }}>Margin (live): {margin}</div>
+
+      <Flex justify="between" my="4">
+        <Button type="submit">{editing ? "Update" : "Create"}</Button>
+      </Flex>
     </form>
   );
 }
