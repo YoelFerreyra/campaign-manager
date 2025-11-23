@@ -13,12 +13,15 @@ Globals:
 
 Resources:
 
-  # ---------- API GATEWAY ----------
+  # ---------- API GATEWAY (with CORS) ----------
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      DefinitionUri: openapi.yaml
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
 
   # ---------- DYNAMODB ----------
   CampaignsTable:
@@ -56,6 +59,20 @@ Resources:
             RestApiId: !Ref ApiGatewayApi
             Path: /campaigns/{id}
             Method: ANY
+
+  # ---------- OPENAPI LAMBDA ----------
+  OpenApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./backend/
+      Handler: openapi_handler.lambda_handler
+      Events:
+        GetOpenApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /openapi
+            Method: GET
 
 Outputs:
   ApiUrl:
