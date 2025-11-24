@@ -36,6 +36,7 @@ def lambda_handler(event, context):
         "budget": decimal.Decimal(str(budget)),
         "units": decimal.Decimal(str(units)),
         "margin": decimal.Decimal(str(margin)),
+        "image_url": body["image_url"],
         "createdAt": now,
         "updatedAt": now,
     }

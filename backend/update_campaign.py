@@ -24,22 +24,30 @@ def lambda_handler(event, context):
 
     now = datetime.utcnow().isoformat()
 
+    update_expression = """
+        SET #n = :n, client = :c, platform = :p,
+            budget = :b, units = :u, margin = :m, updatedAt = :uAt
+    """
+    expression_attr_values = {
+        ":n": body["name"],
+        ":c": body["client"],
+        ":p": body["platform"],
+        ":b": decimal.Decimal(str(budget)),
+        ":u": decimal.Decimal(str(units)),
+        ":m": decimal.Decimal(str(margin)),
+        ":uAt": now,
+    }
+    expression_attr_names = {"#n": "name"}
+
+    if "image_url" in body and body["image_url"]:
+        update_expression += ", image_url = :img"
+        expression_attr_values[":img"] = body["image_url"]
+
     res = table.update_item(
         Key={"campaignId": cid},
-        UpdateExpression="""
-            SET #n = :n, client = :c, platform = :p,
-                budget = :b, units = :u, margin = :m, updatedAt = :uAt
-        """,
-        ExpressionAttributeNames={"#n": "name"},
-        ExpressionAttributeValues={
-            ":n": body["name"],
-            ":c": body["client"],
-            ":p": body["platform"],
-            ":b": decimal.Decimal(str(budget)),
-            ":u": decimal.Decimal(str(units)),
-            ":m": decimal.Decimal(str(margin)),
-            ":uAt": now,
-        },
+        UpdateExpression=update_expression,
+        ExpressionAttributeNames=expression_attr_names,
+        ExpressionAttributeValues=expression_attr_values,
         ReturnValues="ALL_NEW",
     )
 

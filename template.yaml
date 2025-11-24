@@ -136,6 +136,65 @@ Resources:
             Path: /openapi
             Method: GET
 
+  # ---------- S3 UPLOAD URL LAMBDA ----------
+  GenerateUploadUrl:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: generate_upload_url.lambda_handler
+      CodeUri: ./backend/
+      Environment:
+        Variables:
+          ASSETS_BUCKET: !Ref AssetsBucket
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref AssetsBucket
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /upload-url
+            Method: POST
+
+  # ---------- S3 BUCKET ----------
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - "*"
+            AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - HEAD
+            ExposedHeaders:
+              - ETag
+
+  # ---------- S3 GET URL LAMBDA ----------
+  GetImageUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: get_image_url.lambda_handler
+      CodeUri: ./backend/
+      Runtime: python3.11
+      Environment:
+        Variables:
+          ASSETS_BUCKET: !Ref AssetsBucket
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref AssetsBucket
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /get-image-url
+            Method: POST
+
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"

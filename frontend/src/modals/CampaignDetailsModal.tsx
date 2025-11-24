@@ -15,7 +15,20 @@ export default function CampaignDetailsModal({
 }) {
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
 
+  const fetchImageUrl = async (file_url: string) => {
+    const res = await client.post("/get-image-url", { file_url });
+    return res.data.url;
+  };
+  
+  useEffect(() => {
+    if (open && campaign?.image_url) {
+      fetchImageUrl(campaign.image_url).then(setImageSrc);
+    }
+    return () => { setImageSrc(null); }
+  }, [open, campaign]);
+  
   const fetchCampaign = async () => {
     if (!id) return;
 
@@ -45,6 +58,7 @@ export default function CampaignDetailsModal({
           <Box>
             <Card>
               <Flex direction="column" gap="3">
+
                 <Grid gap="1">
                   <Text weight="bold">Name</Text>
                   <Text>{campaign.name}</Text>
@@ -74,6 +88,20 @@ export default function CampaignDetailsModal({
                   <Text weight="bold">Margin</Text>
                   <Text>{campaign.margin}%</Text>
                 </Grid>
+
+                {imageSrc && (
+                  <Box mb="3">
+                    <img
+                      src={imageSrc}
+                      alt={campaign.name}
+                      style={{
+                        width: "100%",
+                        objectFit: "cover",
+                        borderRadius: 8
+                      }}
+                    />
+                  </Box>
+                )}
               </Flex>
             </Card>
           </Box>

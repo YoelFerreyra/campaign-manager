@@ -12,6 +12,11 @@ interface CampaignFormProps {
 export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
   const initial = { name: "", client: "", platform: "", budget: "", units: "" };
   const [form, setForm] = useState(initial);
+
+  const [imageFile, setImageFile] = useState<File | null>(null); 
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   function validate() {
@@ -39,8 +44,17 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
         budget: editing.budget !== undefined ? String(editing.budget) : "",
         units: editing.units !== undefined ? String(editing.units) : "",
       });
+
+      if (editing.image_url) {
+        setImagePreview(editing.image_url);
+        setImageUrl(editing.image_url);
+      }
+
     } else {
       setForm(initial);
+      setImagePreview(null);
+      setImageUrl(null);
+      setImageFile(null);
     }
   }, [editing]);
 
@@ -54,6 +68,53 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
     setForm((f) => ({ ...f, [name]: value }));
   }
 
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  async function uploadImage() {
+    if (!imageFile) return null;
+  
+    try {
+      // 1) Pedir presigned URL
+      const res = await client.post("/upload-url", {
+        filename: imageFile.name,
+        content_type: imageFile.type
+      });
+  
+      const { upload_url, file_url } = res.data;
+  
+      // 2) Subir directo a S3
+      await client.put(upload_url, imageFile, {
+        headers: {
+          "Content-Type": imageFile.type
+        },
+        withCredentials: false,
+        transformRequest: [(data, headers) => {
+          delete headers.common;
+          delete headers.put;
+          delete headers.patch;
+          delete headers.post;
+          return data;
+        }],
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity
+      });
+  
+      return file_url;
+  
+    } catch (err) {
+      console.error("UPLOAD ERROR:", err);
+      return null;
+    }
+  }
+  
+  
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const validation = validate();
@@ -62,14 +123,29 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
     if (Object.keys(validation).length > 0) return;
 
     try {
-      if (editing && editing.campaignId) {
-        await client.put(`/campaigns/${editing.campaignId}`, form);
-      } else {
-        await client.post("/campaigns", form);
+      let finalImageUrl = imageUrl;
+
+      if (imageFile) {
+        finalImageUrl = await uploadImage();
       }
-      setForm(initial);
+
+      const payload = {
+        ...form,
+        budget: Number(form.budget),
+        units: Number(form.units),
+        image_url: finalImageUrl || null
+      };
+
+      debugger
+      if (editing && editing.campaignId) {
+        await client.put(`/campaigns/${editing.campaignId}`, payload);
+      } else {
+        await client.post("/campaigns", payload);
+      }
+
       onDone();
       toast.success("Submission successful");
+
     } catch (err) {
       console.error(err);
       toast.error("Submission failed");
@@ -134,6 +210,24 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
       {errors.units && <p className="text-red-500 text-sm">{errors.units}</p>}
 
       <div style={{ marginTop: 10 }}>Margin (live): {margin}</div>
+
+      <div className="mt-4">
+        <label className="font-medium">Image (optional)</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="mt-2"
+        />
+
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="preview"
+            className="mt-3 rounded border w-32 h-32 object-cover"
+          />
+        )}
+      </div>
 
       <Flex justify="between" my="4">
         <Button type="submit">{editing ? "Update" : "Create"}</Button>

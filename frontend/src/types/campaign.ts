@@ -6,5 +6,6 @@ export interface Campaign {
     budget: number;
     units: number;
     margin: number;
+    image_url?: string;
   }
   
