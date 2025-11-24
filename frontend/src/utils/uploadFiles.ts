@@ -8,6 +8,8 @@ async function uploadFile(file: File) {
 
   const { upload_url, file_url } = res.data;
 
+  if (!upload_url) throw new Error("Failed to get upload URL");
+
   await client.put(upload_url, file, {
     headers: {
       "Content-Type": file.type,

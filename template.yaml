@@ -19,8 +19,8 @@ Resources:
     Properties:
       StageName: Prod
       Cors:
-        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
         AllowOrigin: "'*'"
 
   # ---------- DYNAMODB ----------
@@ -42,7 +42,6 @@ Resources:
     Properties:
       Handler: create_campaign.lambda_handler
       CodeUri: ./backend/
-      Runtime: python3.11
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref CampaignsTable
@@ -59,7 +58,6 @@ Resources:
     Properties:
       Handler: list_campaigns.lambda_handler
       CodeUri: ./backend/
-      Runtime: python3.11
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref CampaignsTable
@@ -76,7 +74,6 @@ Resources:
     Properties:
       Handler: get_campaign.lambda_handler
       CodeUri: ./backend/
-      Runtime: python3.11
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref CampaignsTable
@@ -93,7 +90,6 @@ Resources:
     Properties:
       Handler: update_campaign.lambda_handler
       CodeUri: ./backend/
-      Runtime: python3.11
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref CampaignsTable
@@ -110,7 +106,6 @@ Resources:
     Properties:
       Handler: delete_campaign.lambda_handler
       CodeUri: ./backend/
-      Runtime: python3.11
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref CampaignsTable
@@ -180,7 +175,6 @@ Resources:
     Properties:
       Handler: get_image_url.lambda_handler
       CodeUri: ./backend/
-      Runtime: python3.11
       Environment:
         Variables:
           ASSETS_BUCKET: !Ref AssetsBucket

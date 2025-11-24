@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Project Structure](#project-structure)
 - [Live Version Here](#live-version-here)
   - [Features](#features)
   - [Running the Project](#running-the-project)
@@ -15,30 +14,6 @@
 ## Project Overview
 
 This project implements a full-stack Campaign Manager using a fully serverless architecture, deployed and managed with AWS SAM and Infrastructure as Code (IaC).
-
-## Project Structure
-
-```bash
-campaign-manager/
-├─ backend/
-│  ├─ campaigns_handler.py
-│  ├─ requirements.txt
-├─ frontend/
-│  ├─ package.json
-│  ├─ public/
-│  │  └─ index.html
-│  └─ src/
-│     ├─ index.js
-│     ├─ App.jsx
-│     ├─ api.js
-│     ├─ components/
-│     │  ├─ CampaignList.jsx
-│     │  └─ CampaignForm.jsx
-│     └─ styles.css
-├─ template.yaml
-├─ openapi.yaml
-└─ README.md
-```
 
 # [Live Version Here](http://campaign-frontend-us-media.s3-website-us-east-1.amazonaws.com/)
 

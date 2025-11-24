@@ -1,26 +1,30 @@
 import os
-import yaml
 import json
+import yaml
 
-def lambda_handler():
+def lambda_handler(event, context):
     file_path = os.path.join(os.path.dirname(__file__), "openapi.yaml")
     with open(file_path, "r", encoding="utf-8") as f:
-        spec = yaml.safe_load(f)
-
-    spec_json = json.dumps(spec)
+        yaml_content = yaml.safe_load(f)
+        spec_json = json.dumps(yaml_content)
 
     html = f"""
     <!DOCTYPE html>
     <html>
       <head>
-        <title>API Docs</title>
-        <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+        <title>Swagger UI</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css">
       </head>
       <body>
-        <div id="redoc-container"></div>
+        <div id="swagger-ui"></div>
+        <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-bundle.js"></script>
         <script>
           const spec = {spec_json};
-          Redoc.init(spec, {{ scrollYOffset: 50 }}, document.getElementById('redoc-container'));
+          SwaggerUIBundle({{
+            spec: spec,
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis]
+          }})
         </script>
       </body>
     </html>

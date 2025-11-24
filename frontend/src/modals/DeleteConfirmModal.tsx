@@ -26,6 +26,7 @@ export default function DeleteConfirmModal({
                   Are you sure you want to delete the campaign{" "}
                   <strong>{campaign.name}</strong>?
                 </Text>
+                  <br />
                 <Text color="red" size="2">
                   This action cannot be undone.
                 </Text>

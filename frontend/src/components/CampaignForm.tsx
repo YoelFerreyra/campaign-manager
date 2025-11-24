@@ -13,7 +13,7 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
   const initial = { name: "", client: "", platform: "", budget: "", units: "" };
   const [form, setForm] = useState(initial);
 
-  const [imageFile, setImageFile] = useState<File | null>(null); 
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -21,17 +21,27 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
 
   function validate() {
     const newErrors: { [key: string]: string } = {};
-  
+
+    // Required
     if (!form.name.trim()) newErrors.name = "Name is required";
+    else if (form.name.length > 80)
+      newErrors.name = "Name cannot exceed 80 characters";
+
     if (!form.client.trim()) newErrors.client = "Client is required";
+    else if (form.client.length > 50)
+      newErrors.client = "Client cannot exceed 50 characters";
+
     if (!form.platform.trim()) newErrors.platform = "Platform is required";
-  
+    else if (form.platform.length > 30)
+      newErrors.platform = "Platform cannot exceed 30 characters";
+
+    // Numbers
     if (!form.budget || Number(form.budget) < 0)
       newErrors.budget = "Budget must be ≥ 0";
-  
+
     if (!form.units || Number(form.units) <= 0)
       newErrors.units = "Units must be > 0";
-  
+
     return newErrors;
   }
 
@@ -49,7 +59,6 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
         setImagePreview(editing.image_url);
         setImageUrl(editing.image_url);
       }
-
     } else {
       setForm(initial);
       setImagePreview(null);
@@ -78,48 +87,45 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
 
   async function uploadImage() {
     if (!imageFile) return null;
-  
+
     try {
-      // 1) Pedir presigned URL
       const res = await client.post("/upload-url", {
         filename: imageFile.name,
-        content_type: imageFile.type
+        content_type: imageFile.type,
       });
-  
+
       const { upload_url, file_url } = res.data;
-  
-      // 2) Subir directo a S3
+
       await client.put(upload_url, imageFile, {
         headers: {
-          "Content-Type": imageFile.type
+          "Content-Type": imageFile.type,
         },
         withCredentials: false,
-        transformRequest: [(data, headers) => {
-          delete headers.common;
-          delete headers.put;
-          delete headers.patch;
-          delete headers.post;
-          return data;
-        }],
+        transformRequest: [
+          (data, headers) => {
+            delete headers.common;
+            delete headers.put;
+            delete headers.patch;
+            delete headers.post;
+            return data;
+          },
+        ],
         maxBodyLength: Infinity,
-        maxContentLength: Infinity
+        maxContentLength: Infinity,
       });
-  
+
       return file_url;
-  
     } catch (err) {
       console.error("UPLOAD ERROR:", err);
       return null;
     }
   }
-  
-  
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const validation = validate();
     setErrors(validation);
-  
+
     if (Object.keys(validation).length > 0) return;
 
     try {
@@ -133,10 +139,9 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
         ...form,
         budget: Number(form.budget),
         units: Number(form.units),
-        image_url: finalImageUrl || null
+        image_url: finalImageUrl || null,
       };
 
-      debugger
       if (editing && editing.campaignId) {
         await client.put(`/campaigns/${editing.campaignId}`, payload);
       } else {
@@ -145,7 +150,6 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
 
       onDone();
       toast.success("Submission successful");
-
     } catch (err) {
       console.error(err);
       toast.error("Submission failed");
@@ -194,9 +198,7 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
         className={errors.budget ? "border border-red-500" : ""}
         mt="2"
       />
-      {errors.budget && (
-        <p className="text-red-500 text-sm">{errors.budget}</p>
-      )}
+      {errors.budget && <p className="text-red-500 text-sm">{errors.budget}</p>}
 
       <TextField.Root
         placeholder="Units"
@@ -213,12 +215,15 @@ export default function CampaignForm({ editing, onDone }: CampaignFormProps) {
 
       <div className="mt-4">
         <label className="font-medium">Image (optional)</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="mt-2"
-        />
+        <br />
+        <Button variant="soft" mt="2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="mt-2"
+          />
+        </Button>
 
         {imagePreview && (
           <img
