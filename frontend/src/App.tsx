@@ -6,6 +6,7 @@ import {
   Heading,
   IconButton,
   Section,
+  Text,
   Theme,
   ThemePanel,
 } from "@radix-ui/themes";
@@ -19,7 +20,8 @@ export default function App() {
       <ThemePanel />
       <Container>
         <Flex justify="between" my="4">
-          <Heading as="h1">Campaign Manager</Heading>
+          <Text>Logo</Text>
+          <Heading as="h1" size="7">Campaign Manager</Heading>
           <IconButton variant="ghost">
             {theme === "dark" ? (
               <Sun onClick={() => setTheme("light")} />

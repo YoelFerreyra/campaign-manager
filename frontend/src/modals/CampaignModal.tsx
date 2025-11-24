@@ -1,5 +1,5 @@
 import { Button, Dialog }   from "@radix-ui/themes";
-import CampaignForm from "./CampaignForm";
+import CampaignForm from "../components/CampaignForm";
 import type { Campaign } from "../types/campaign";
 
 interface Props {
