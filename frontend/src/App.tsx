@@ -6,21 +6,18 @@ import {
   Heading,
   IconButton,
   Section,
-  Text,
   Theme,
-  ThemePanel,
 } from "@radix-ui/themes";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Package, Sun } from "lucide-react";
 
 export default function App() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   return (
     <Theme appearance={theme} accentColor="orange">
-      <ThemePanel />
       <Container>
         <Flex justify="between" my="4">
-          <Text>Logo</Text>
+          <Package size={28} color="#ff801f" />
           <Heading as="h1" size="7">Campaign Manager</Heading>
           <IconButton variant="ghost">
             {theme === "dark" ? (

@@ -95,7 +95,7 @@ export default function CampaignDetailsModal({
                       src={imageSrc}
                       alt={campaign.name}
                       style={{
-                        width: "100%",
+                        maxHeight: 300,
                         objectFit: "cover",
                         borderRadius: 8
                       }}

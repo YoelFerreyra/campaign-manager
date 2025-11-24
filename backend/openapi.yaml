@@ -4,12 +4,13 @@ info:
   version: 1.0.0
 
 paths:
-  /campaigns:
+  /Prod/campaigns:
     options:
       summary: CORS support
       responses:
         "200":
           description: Default CORS response
+
     get:
       summary: List campaigns
       responses:
@@ -36,10 +37,14 @@ paths:
                       type: number
                     margin:
                       type: number
+                    image_url:
+                      type: string
+                      format: uri
                     createdAt:
                       type: string
                     updatedAt:
                       type: string
+
     post:
       summary: Create a campaign
       requestBody:
@@ -60,6 +65,9 @@ paths:
                   type: number
                 units:
                   type: number
+                image_url:
+                  type: string
+                  format: uri
       responses:
         "201":
           description: Created
@@ -82,18 +90,22 @@ paths:
                     type: number
                   margin:
                     type: number
+                  image_url:
+                    type: string
+                    format: uri
                   createdAt:
                     type: string
                   updatedAt:
                     type: string
 
-  /campaigns/{id}:
+  /Prod/campaigns/{id}:
     parameters:
       - name: id
         in: path
         required: true
         schema:
           type: string
+
     get:
       summary: Get a campaign by ID
       responses:
@@ -118,12 +130,16 @@ paths:
                     type: number
                   margin:
                     type: number
+                  image_url:
+                    type: string
+                    format: uri
                   createdAt:
                     type: string
                   updatedAt:
                     type: string
         "404":
           description: Campaign not found
+
     put:
       summary: Update a campaign by ID
       requestBody:
@@ -144,6 +160,9 @@ paths:
                   type: number
                 units:
                   type: number
+                image_url:
+                  type: string
+                  format: uri
       responses:
         "200":
           description: Updated campaign
@@ -151,8 +170,32 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  campaignId:
+                    type: string
+                  name:
+                    type: string
+                  client:
+                    type: string
+                  platform:
+                    type: string
+                  budget:
+                    type: number
+                  units:
+                    type: number
+                  margin:
+                    type: number
+                  image_url:
+                    type: string
+                    format: uri
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+
         "404":
           description: Campaign not found
+
     delete:
       summary: Delete a campaign by ID
       responses:
