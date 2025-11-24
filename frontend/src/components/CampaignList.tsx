@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { client } from "../api";
 import type { Campaign } from "../types/campaign";
-import CampaignModal from "./CampaignModal";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import CampaignModal from "../modals/CampaignModal";
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button, Flex, Heading, Section, Table } from "@radix-ui/themes";
+import CampaignDetailsModal from "../modals/CampaignDetailsModal";
+import { toast } from "sonner";
+import DeleteConfirmModal from "../modals/DeleteConfirmModal";
 
 export default function CampaignList() {
   const [items, setItems] = useState<Campaign[]>([]);
@@ -11,6 +14,8 @@ export default function CampaignList() {
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Campaign | null>(null);
+  const [viewing, setViewing] = useState<Campaign | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Campaign | null>(null);
 
   const fetch = async () => {
     setLoading(true);
@@ -19,7 +24,7 @@ export default function CampaignList() {
       setItems(res.data || []);
     } catch (err) {
       console.error(err);
-      alert("Error fetching campaigns");
+      toast.error("Error fetching campaigns");
     } finally {
       setLoading(false);
     }
@@ -30,13 +35,13 @@ export default function CampaignList() {
   }, []);
 
   const remove = async (id: string) => {
-    if (!window.confirm("Delete campaign?")) return;
     try {
       await client.delete(`/campaigns/${id}`);
       fetch();
+      toast.success("Campaign deleted");
     } catch (err) {
       console.error(err);
-      alert("Delete failed");
+      toast.error("Error deleting campaign");
     }
   };
 
@@ -81,8 +86,12 @@ export default function CampaignList() {
                       <Pencil size={16} />
                     </Button>
 
-                    <Button onClick={() => remove(it.campaignId)}>
+                    <Button onClick={() => setConfirmDelete(it)}>
                       <Trash2 size={16} />
+                    </Button>
+
+                    <Button onClick={() => setViewing(it)}>
+                      <Eye size={16} />
                     </Button>
                   </Flex>
                 </Table.Cell>
@@ -92,7 +101,7 @@ export default function CampaignList() {
         </Table.Root>
       )}
 
-      {/* Create Dialog */}
+      {/* Create Modal */}
       <CampaignModal
         open={creating}
         title="Create Campaign"
@@ -103,7 +112,7 @@ export default function CampaignList() {
         }}
       />
 
-      {/* Edit Dialog */}
+      {/* Edit Modal */}
       <CampaignModal
         open={!!editing}
         title="Edit Campaign"
@@ -112,6 +121,24 @@ export default function CampaignList() {
         onDone={() => {
           setEditing(null);
           fetch();
+        }}
+      />
+
+      {/* View Details Modal */}
+      <CampaignDetailsModal
+        id={viewing?.campaignId ?? null}
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        campaign={confirmDelete}
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={(id) => {
+          remove(id);
+          setConfirmDelete(null);
         }}
       />
     </Section>

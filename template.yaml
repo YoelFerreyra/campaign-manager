@@ -36,29 +36,91 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
-  # ---------- LAMBDA ----------
-  CampaignsFunction:
+  # ---------- CAMPAIGNS LAMBDA ----------
+  CreateCampaignFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: campaigns-handler
-      Handler: campaigns_handler.lambda_handler
+      Handler: create_campaign.lambda_handler
       CodeUri: ./backend/
+      Runtime: python3.11
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref CampaignsTable
       Events:
-        CampaignsApi:
+        Api:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGatewayApi
             Path: /campaigns
-            Method: ANY
-        CampaignsApiWithId:
+            Method: POST
+
+  ListCampaignsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: list_campaigns.lambda_handler
+      CodeUri: ./backend/
+      Runtime: python3.11
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref CampaignsTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /campaigns
+            Method: GET
+
+  GetCampaignFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: get_campaign.lambda_handler
+      CodeUri: ./backend/
+      Runtime: python3.11
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref CampaignsTable
+      Events:
+        Api:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGatewayApi
             Path: /campaigns/{id}
-            Method: ANY
+            Method: GET
+
+  UpdateCampaignFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: update_campaign.lambda_handler
+      CodeUri: ./backend/
+      Runtime: python3.11
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CampaignsTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /campaigns/{id}
+            Method: PUT
+
+  DeleteCampaignFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: delete_campaign.lambda_handler
+      CodeUri: ./backend/
+      Runtime: python3.11
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CampaignsTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /campaigns/{id}
+            Method: DELETE
 
   # ---------- OPENAPI LAMBDA ----------
   OpenApiFunction:
