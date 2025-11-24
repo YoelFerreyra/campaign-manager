@@ -4,12 +4,16 @@
 
 - [Project Overview](#project-overview)
 - [Live Version Here](#live-version-here)
-  - [Features](#features)
-  - [Running the Project](#running-the-project)
-    - [Prerequisites](#prerequisites)
-    - [Setup](#setup)
-  - [Author](#author)
-  - [License](#license)
+- [Backend API](#backend-api)
+- [Architecture](#architecture)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Running the Project](#running-the-project)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+- [Author](#author)
+- [CI/CD-ready pipeline for GitHub Actions](#CI/CD)
+- [License](#license)
 
 ## Project Overview
 
@@ -17,10 +21,38 @@ This project implements a full-stack Campaign Manager using a fully serverless a
 
 # [Live Version Here](http://campaign-frontend-us-media.s3-website-us-east-1.amazonaws.com/)
 
+# Backend API
+The backend is built using AWS Lambda + API Gateway, fully defined using AWS SAM.
+It includes:
+
+- CRUD operations for campaigns
+- Image upload using presigned URLs
+- OpenAPI documentation rendered with Swagger
+- Image Upload Flow
+
+  - Frontend requests a presigned URL via /upload-url
+
+  - The backend generates an S3 presigned PUT URL
+
+  - React uploads the file directly to S3
+
+  - The campaign stores only the image key
+
+  - AWS Lambda generates a public GET URL when needed
+  
+[Live Openapi Here](https://o6ryv1dc68.execute-api.us-east-1.amazonaws.com/Prod/openapi/)
+
 ## Architecture
 
 ```bash
-React SPA → CloudFront/S3 → API Gateway → Lambda (Python) → DynamoDB/RDS
+React SPA → S3 Static Hosting → CloudFront (optional)
+                  ↓
+           API Gateway (REST)
+                  ↓
+             AWS Lambda (Python)
+                  ↓
+        DynamoDB (Campaign Storage)
+
 ```
 
 ## Features
@@ -29,8 +61,29 @@ React SPA → CloudFront/S3 → API Gateway → Lambda (Python) → DynamoDB/RDS
 - Frontend SPA with responsive design
 - Serverless architecture for scalability and low maintenance
 - Infrastructure as Code (IaC) using AWS SAM
-- Optional backend API documentation via OpenAPI
+- Backend API documentation via OpenAPI
 - CI/CD-friendly for GitHub Actions deployments
+
+## Tech Stack
+- Frontend
+  - React
+  - Vite
+  - Radix UI
+  - Lucide Icons
+  - Fetch-based API client
+
+- Backend
+  - Python 3.11
+  - AWS Lambda
+  - API Gateway
+  - DynamoDB
+  - boto3
+
+- Infrastructure
+  - AWS SAM
+  - S3 for hosting
+  - CloudFront (optional CDN layer)
+  - AWS CLI
 
 ## Running the Project
 
@@ -50,7 +103,7 @@ Backend:
 cd backend
 pip install -r requirements.txt
 sam build --use-container
-sam deploy --stack-name campaign-manager --capabilities CAPABILITY_IAM --resolve-s3
+sam deploy
 ```
 
 Frontend:
@@ -68,10 +121,55 @@ npm install
 npm run build
 ```
 
-Deploy to S3:
+### Deploy to S3:
+
+You can deploy the frontend (React or any static website) to Amazon S3 and make it publicly accessible.
+Below are the steps to create the bucket, configure permissions, enable static hosting, and deploy.
+
+1. Create an S3 Bucket
+```bash
+aws s3 mb s3://your-frontend-bucket --region us-east-1
+```
+
+2. Enable Static Website Hosting
+```bash
+aws s3 website s3://your-frontend-bucket --index-document index.html --error-document index.html
+```
+
+3. Allow Public Read Access (Bucket Policy)
+Create a file bucket-policy.json
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::your-frontend-bucket/*"
+    }
+  ]
+}
+```
+Apply the policy:
+
+```bash
+aws s3api put-bucket-policy \
+  --bucket your-frontend-bucket \
+  --policy file://bucket-policy.json
+```
+
+4. Deploy the React App to S3
 
 ```bash
 aws s3 sync build/ s3://your-frontend-bucket --delete
+```
+
+5. Access Your Deployed Site
+```bash
+http://your-frontend-bucket.s3-website-us-east-1.amazonaws.com
 ```
 
 ## Author
@@ -120,6 +218,15 @@ aws s3 sync build/ s3://your-frontend-bucket --delete
     </td>
   </tr>
 </table>
+
+## CI/CD
+The project supports GitHub Actions workflows for:
+
+- Validating SAM templates
+
+- Auto-deploying backend
+
+- Building and deploying frontend to S3
 
 ## License
 
